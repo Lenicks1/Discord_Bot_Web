@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="profile-header">
+    <div class="profile-avatar">
+        {% if user.discord_avatar %}
+            <img src="{{ user.discord_avatar }}" alt="{{ user.username }}">
+        {% else %}
+            <div class="avatar-placeholder">{{ user.username[0].upper() }}</div>
+        {% endif %}
+    </div>
+    <div class="profile-info">
+        <h2>{{ user.username }}</h2>
+        {% if user.is_admin %}
+            <span class="badge badge-admin">👑 Администратор</span>
+        {% endif %}
+        {% if user.discord_id %}
+            <p class="discord-id">Discord ID: {{ user.discord_id }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="profile-stats">
+    <h3>📊 Статистика</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h4>Аккаунт создан</h4>
+            <p>{{ user.id }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Статус</h4>
+            <p>{{ '🟢 Активен' if user.is_admin else '🔵 Пользователь' }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="profile-actions">
+    <h3>⚙️ Действия</h3>
+    {% if user.is_admin %}
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">Админ-панель</a>
+    {% endif %}
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">На главную</a>
+</div>
+{% endblock %}

@@ -1,0 +1,395 @@
+{% extends 'base.html' %}
+
+{% block title %}Статистика - Админ-панель{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h2>📊 Статистика бота</h2>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">← Назад</a>
+</div>
+
+<div class="admin-stats">
+    <h3>📈 Общая статистика</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h4>Серверов</h4>
+            <p class="stat-number">{{ stats.servers }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Пользователей</h4>
+            <p class="stat-number">{{ stats.users }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Сообщений</h4>
+            <p class="stat-number">{{ stats.messages }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Цитат</h4>
+            <p class="stat-number">{{ stats.quotes }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="charts-section">
+    <h3>📉 Графики активности</h3>
+    
+    <div class="chart-controls">
+        <button class="btn btn-secondary" onclick="updateChart('7')">7 дней</button>
+        <button class="btn btn-secondary" onclick="updateChart('30')">30 дней</button>
+        <button class="btn btn-secondary" onclick="updateChart('90')">90 дней</button>
+        <button class="btn btn-primary" onclick="exportData('csv')">📥 Экспорт CSV</button>
+        <button class="btn btn-primary" onclick="exportData('json')">📥 Экспорт JSON</button>
+    </div>
+    
+    <div class="charts-grid">
+        <div class="chart-container">
+            <h4>📬 Сообщения по дням</h4>
+            <canvas id="messagesChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h4>⭐ Распределение по XP</h4>
+            <canvas id="xpChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h4>🎤 Голосовое время</h4>
+            <canvas id="voiceChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h4>👥 Топ пользователей</h4>
+            <canvas id="topUsersChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для экспорта -->
+<div id="exportModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3>📥 Экспорт данных</h3>
+        <p>Выберите формат экспорта:</p>
+        <div class="export-options">
+            <button class="btn btn-primary" onclick="downloadCSV()">CSV</button>
+            <button class="btn btn-secondary" onclick="downloadJSON()">JSON</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Глобальные переменные для графиков
+let messagesChart, xpChart, voiceChart, topUsersChart;
+
+// Данные из Flask
+const chartData = {{ chart_data | tojson }};
+const xpDistribution = {{ xp_distribution | tojson }};
+const topUsers = {{ top_users | tojson }};
+
+// Инициализация графиков
+document.addEventListener('DOMContentLoaded', function() {
+    initMessagesChart();
+    initXPChart();
+    initVoiceChart();
+    initTopUsersChart();
+});
+
+// График сообщений по дням
+function initMessagesChart() {
+    const ctx = document.getElementById('messagesChart').getContext('2d');
+    messagesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.messages_labels || [],
+            datasets: [{
+                label: 'Сообщения',
+                data: chartData.messages_count || [],
+                borderColor: '#00d9ff',
+                backgroundColor: 'rgba(0, 217, 255, 0.2)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#aaa' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                x: {
+                    ticks: { color: '#aaa' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            }
+        }
+    });
+}
+
+// График распределения XP
+function initXPChart() {
+    const ctx = document.getElementById('xpChart').getContext('2d');
+    xpChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: xpDistribution.labels || ['0-100', '100-500', '500-1000', '1000-5000', '5000+'],
+            datasets: [{
+                data: xpDistribution.counts || [0, 0, 0, 0, 0],
+                backgroundColor: [
+                    '#00d9ff',
+                    '#00ff88',
+                    '#ffaa00',
+                    '#ff0055',
+                    '#aa00ff'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#fff' }
+                }
+            }
+        }
+    });
+}
+
+// График голосового времени
+function initVoiceChart() {
+    const ctx = document.getElementById('voiceChart').getContext('2d');
+    voiceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.voice_labels || [],
+            datasets: [{
+                label: 'Часов в войсе',
+                data: chartData.voice_hours || [],
+                backgroundColor: 'rgba(255, 170, 0, 0.7)',
+                borderColor: '#ffaa00',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#aaa' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                x: {
+                    ticks: { color: '#aaa' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            }
+        }
+    });
+}
+
+// Топ пользователей
+function initTopUsersChart() {
+    const ctx = document.getElementById('topUsersChart').getContext('2d');
+    topUsersChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: topUsers.names || [],
+            datasets: [{
+                label: 'XP',
+                data: topUsers.xp || [],
+                backgroundColor: 'rgba(0, 255, 136, 0.7)',
+                borderColor: '#00ff88',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#aaa' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y: {
+                    ticks: { color: '#fff' },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+// Обновление графика по периоду
+function updateChart(days) {
+    fetch(`/api/stats_data?days=${days}`)
+        .then(response => response.json())
+        .then(data => {
+            messagesChart.data.labels = data.messages_labels;
+            messagesChart.data.datasets[0].data = data.messages_count;
+            messagesChart.update();
+        });
+}
+
+// Экспорт данных
+function exportData(format) {
+    const modal = document.getElementById('exportModal');
+    modal.style.display = 'block';
+}
+
+function closeModal() {
+    const modal = document.getElementById('exportModal');
+    modal.style.display = 'none';
+}
+
+function downloadCSV() {
+    const csvContent = "data:text/csv;charset=utf-8," 
+        + "Дата,Сообщения\n"
+        + chartData.messages_labels.map((label, i) => `${label},${chartData.messages_count[i]}`).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "stats_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    closeModal();
+}
+
+function downloadJSON() {
+    const jsonContent = JSON.stringify({
+        stats: {{ stats | tojson }},
+        messages: chartData,
+        xp_distribution: xpDistribution,
+        top_users: topUsers
+    }, null, 2);
+    
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "stats_export.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    closeModal();
+}
+
+// Закрытие модального окна при клике вне его
+window.onclick = function(event) {
+    const modal = document.getElementById('exportModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+</script>
+
+<style>
+.charts-section {
+    padding: 20px;
+    margin-top: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.chart-container {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 10px;
+    min-height: 350px;
+}
+
+.chart-container h4 {
+    color: #00d9ff;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+canvas {
+    max-height: 300px;
+}
+
+/* Модальное окно */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    margin: 15% auto;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #fff;
+}
+
+.export-options {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-controls {
+        flex-direction: column;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock %}

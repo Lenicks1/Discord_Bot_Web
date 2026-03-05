@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>API Документация - Lenicks Bot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: #00d9ff; }
+        h2 { color: #00ff88; margin-top: 40px; }
+        .endpoint {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #00d9ff;
+        }
+        .method {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .get { background: #00d9ff; color: #1a1a2e; }
+        .post { background: #00ff88; color: #1a1a2e; }
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-family: 'Consolas', monospace;
+        }
+        .example {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>📚 API Документация Lenicks Bot</h1>
+    
+    <h2>🔐 Аутентификация</h2>
+    <p>Все запросы требуют API ключ в заголовке:</p>
+    <code>X-API-Key: ваш_api_ключ</code>
+    
+    <h2>📊 Эндпоинты</h2>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/api/v1/stats</code>
+        <p>Получить общую статистику бота</p>
+        <div class="example">
+            <pre>{
+  "success": true,
+  "data": {
+    "servers": 1,
+    "users": 50,
+    "messages": 10000,
+    "quotes": 25
+  }
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/api/v1/guilds</code>
+        <p>Получить список серверов</p>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/api/v1/users/top?limit=10</code>
+        <p>Получить топ пользователей по XP</p>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/api/v1/quotes?limit=10</code>
+        <p>Получить последние цитаты</p>
+    </div>
+</body>
+</html>

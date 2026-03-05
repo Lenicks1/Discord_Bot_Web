@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Пользователи - Админ-панель{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h2>👥 Пользователи (Топ 50 по XP)</h2>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">← Назад</a>
+</div>
+
+<div class="data-table">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>ID пользователя</th>
+                <th>XP</th>
+                <th>Сообщения</th>
+                <th>Голос (сек)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ user.user_id }}</td>
+                <td>{{ user.xp }}</td>
+                <td>{{ user.total_messages }}</td>
+                <td>{{ user.voice_seconds }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">Нет данных</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Админ-панель - Lenicks Bot{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h2>👑 Админ-панель</h2>
+    <p>Добро пожаловать, {{ username }}!</p>
+</div>
+
+<div class="admin-stats">
+    <h3>📊 Статистика бота</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h4>Серверов</h4>
+            <p class="stat-number">{{ stats.servers }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Пользователей</h4>
+            <p class="stat-number">{{ stats.users }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Сообщений</h4>
+            <p class="stat-number">{{ stats.messages }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Цитат</h4>
+            <p class="stat-number">{{ stats.quotes }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="admin-section">
+    <h3>🗄️ Управление данными</h3>
+    <div class="db-sections">
+        <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">👥 Пользователи</a>
+        <a href="{{ url_for('admin_guilds') }}" class="btn btn-secondary">🖥️ Сервера</a>
+        <a href="{{ url_for('admin_quotes') }}" class="btn btn-secondary">💬 Цитаты</a>
+    </div>
+</div>
+{% endblock %}

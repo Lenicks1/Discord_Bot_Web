@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход - Lenicks Bot{% endblock %}
+
+{% block content %}
+<div class="login-form">
+    <h2>🔐 Вход в аккаунт</h2>
+    
+    <!-- Кнопка Discord OAuth2 -->
+    <a href="{{ url_for('discord_login') }}" class="btn btn-discord">
+        <img src="https://discord.com/assets/8c9701b98ad4372b58f13fd9f65f966e.svg" alt="Discord" class="discord-icon">
+        Войти через Discord
+    </a>
+    
+    <div class="divider">
+        <span>или</span>
+    </div>
+    
+    <!-- Обычная форма входа -->
+    <form method="POST">
+        <div class="form-group">
+            <label for="username">Логин:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+</div>
+{% endblock %}

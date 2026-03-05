@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Lenicks Bot{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body data-theme="dark">
+    <nav class="navbar">
+        <div class="container">
+            <a href="{{ url_for('index') }}" class="logo">🤖 Lenicks Bot</a>
+            <div class="nav-links">
+                <button id="themeToggle" class="btn btn-theme" title="Переключить тему">🌙</button>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('profile') }}">👤 {{ current_user.username }}</a>
+                    {% if current_user.is_admin %}
+                        <a href="{{ url_for('admin_dashboard') }}">📊 Дашборд</a>
+                        <a href="{{ url_for('admin_stats') }}">📈 Статистика</a>
+                        <a href="{{ url_for('admin_settings') }}">⚙️ Настройки</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="btn btn-logout">Выйти</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-login">Войти</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Lenicks Bot. Все права защищены.</p>
+    </footer>
+
+    <script>
+        // Переключатель темы
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Загружаем сохранённую тему
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        body.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+        
+        function updateThemeIcon(theme) {
+            themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
+            themeToggle.title = theme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
+        }
+    </script>
+</body>
+</html>

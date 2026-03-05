@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Настройки - Админ-панель{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h2>⚙️ Настройки бота</h2>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">← Назад</a>
+</div>
+
+<div class="settings-section">
+    <h3>📊 Статистика сервера</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h4>Серверов</h4>
+            <p class="stat-number">{{ stats.servers if stats else 0 }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Пользователей</h4>
+            <p class="stat-number">{{ stats.users if stats else 0 }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Сообщений</h4>
+            <p class="stat-number">{{ stats.messages if stats else 0 }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Цитат</h4>
+            <p class="stat-number">{{ stats.quotes if stats else 0 }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="settings-section">
+    <h3>🖥️ Выберите сервер для настройки</h3>
+    <select id="guildSelect" class="form-select" onchange="loadGuildSettings()">
+        <option value="">-- Выберите сервер --</option>
+        {% for guild in guilds %}
+        <option value="{{ guild.guild_id }}">{{ guild.guild_id }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div id="settingsPanel" style="display: none;">
+    <div class="settings-grid">
+        <div class="setting-card">
+            <h4>📝 Лог-канал</h4>
+            <p>Настройте канал для логирования событий</p>
+            <form method="POST" action="{{ url_for('admin_settings') }}" class="setting-form">
+                <input type="hidden" name="guild_id" id="guild_id_log">
+                <div class="form-group">
+                    <input type="text" name="log_channel_id" placeholder="ID канала">
+                </div>
+                <button type="submit" name="action" value="set_log" class="btn btn-primary">Установить</button>
+            </form>
+        </div>
+
+        <div class="setting-card">
+            <h4>👋 Приветствия</h4>
+            <p>Настройте канал для приветствий</p>
+            <form method="POST" action="{{ url_for('admin_settings') }}" class="setting-form">
+                <input type="hidden" name="guild_id" id="guild_id_welcome">
+                <div class="form-group">
+                    <input type="text" name="welcome_channel_id" placeholder="ID канала">
+                </div>
+                <button type="submit" name="action" value="set_welcome" class="btn btn-primary">Установить</button>
+            </form>
+        </div>
+
+        <div class="setting-card">
+            <h4>👋 Прощания</h4>
+            <p>Настройте канал для прощаний</p>
+            <form method="POST" action="{{ url_for('admin_settings') }}" class="setting-form">
+                <input type="hidden" name="guild_id" id="guild_id_goodbye">
+                <div class="form-group">
+                    <input type="text" name="goodbye_channel_id" placeholder="ID канала">
+                </div>
+                <button type="submit" name="action" value="set_goodbye" class="btn btn-primary">Установить</button>
+            </form>
+        </div>
+
+        <div class="setting-card">
+            <h4>🎭 Autorole</h4>
+            <p>Роль для новых участников</p>
+            <form method="POST" action="{{ url_for('admin_settings') }}" class="setting-form">
+                <input type="hidden" name="guild_id" id="guild_id_autorole">
+                <div class="form-group">
+                    <input type="text" name="autorole_id" placeholder="ID роли">
+                </div>
+                <button type="submit" name="action" value="set_autorole" class="btn btn-primary">Установить</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="settings-section">
+    <h3>💾 База данных</h3>
+    <div class="db-actions">
+        <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">👥 Пользователи</a>
+        <a href="{{ url_for('admin_guilds') }}" class="btn btn-secondary">🖥️ Сервера</a>
+        <a href="{{ url_for('admin_quotes') }}" class="btn btn-secondary">💬 Цитаты</a>
+        <a href="{{ url_for('admin_stats') }}" class="btn btn-secondary">📊 Статистика</a>
+        <a href="{{ url_for('admin_moderation') }}" class="btn btn-secondary">🛡️ Модерация</a>
+    </div>
+</div>
+
+<script>
+function loadGuildSettings() {
+    const select = document.getElementById('guildSelect');
+    const guildId = select.value;
+    
+    if (guildId) {
+        document.getElementById('settingsPanel').style.display = 'block';
+        document.getElementById('guild_id_log').value = guildId;
+        document.getElementById('guild_id_welcome').value = guildId;
+        document.getElementById('guild_id_goodbye').value = guildId;
+        document.getElementById('guild_id_autorole').value = guildId;
+    } else {
+        document.getElementById('settingsPanel').style.display = 'none';
+    }
+}
+</script>
+
+<style>
+.form-select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #00d9ff;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #00d9ff;
+}
+
+.db-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+</style>
+
+{% if message %}
+<div class="alert alert-{{ message_type }}">
+    {{ message }}
+</div>
+{% endif %}
+{% endblock %}
